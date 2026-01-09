@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: servicematch-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-servicematch}
+      POSTGRES_USER: ${POSTGRES_USER:-servicematch}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-servicematch}
+    volumes:
+      - servicematch_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-servicematch} -d ${POSTGRES_DB:-servicematch}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  servicematch_postgres_data:
