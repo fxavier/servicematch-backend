@@ -1,7 +1,7 @@
 package com.xavier.servicematchbackend.identityaccess.domain.valueobject;
 
 public enum Role {
-    USER,
+    CLIENT,
     PROVIDER,
     ADMIN
 }

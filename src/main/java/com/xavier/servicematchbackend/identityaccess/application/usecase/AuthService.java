@@ -42,7 +42,7 @@ public class AuthService {
         String rawPassword = requireValue(request.password(), "password");
         PasswordHash passwordHash = PasswordHash.of(passwordEncoder.encode(rawPassword));
 
-        User user = userRegistrationService.register(email, passwordHash, Set.of(Role.USER));
+        User user = userRegistrationService.register(email, passwordHash, Set.of(Role.CLIENT));
         SessionToken sessionToken = sessionService.create(user.id());
         return new AuthResponse(jwtService.issueToken(user), sessionToken.refreshToken());
     }

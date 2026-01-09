@@ -45,7 +45,7 @@ class UserTests {
         Email email = Email.of("user@example.com");
         PasswordHash passwordHash = PasswordHash.of("hash");
 
-        User user = User.register(email, passwordHash, Set.of(Role.USER));
+        User user = User.register(email, passwordHash, Set.of(Role.CLIENT));
 
         assertThat(user.accountStatus()).isEqualTo(AccountStatus.ACTIVE);
     }

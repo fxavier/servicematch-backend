@@ -3,7 +3,7 @@ package com.xavier.servicematchbackend.identityaccess.infra.security;
 import com.xavier.servicematchbackend.identityaccess.domain.entity.User;
 import com.xavier.servicematchbackend.identityaccess.domain.valueobject.Role;
 import java.time.Instant;
-import java.util.stream.Collectors;
+import java.util.List;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
@@ -23,9 +23,9 @@ public class JwtService {
     public String issueToken(User user) {
         Instant now = Instant.now();
         Instant expiresAt = now.plusSeconds(properties.getTtlSeconds());
-        String roles = user.roles().stream()
+        List<String> roles = user.roles().stream()
                 .map(Role::name)
-                .collect(Collectors.joining(","));
+                .toList();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer(properties.getIssuer())
