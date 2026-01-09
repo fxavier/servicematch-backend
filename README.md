@@ -9,7 +9,9 @@
 docker compose up -d
 ```
 
-3) Rode a aplicação com o profile `dev`:
+3) Acesse o RabbitMQ Management: `http://localhost:15672` (user/pass do `.env`).
+
+4) Rode a aplicação com o profile `dev`:
 
 ```sh
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
