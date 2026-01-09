@@ -1,4 +1,4 @@
-package com.xavier.servicematch.common.domain.valueobject;
+package com.xavier.servicematchbackend.common.domain.valueobject;
 
 import java.util.Objects;
 import java.util.regex.Pattern;

@@ -1,4 +1,4 @@
-package com.xavier.servicematch.common.domain.exception;
+package com.xavier.servicematchbackend.common.domain.exception;
 
 
 /**

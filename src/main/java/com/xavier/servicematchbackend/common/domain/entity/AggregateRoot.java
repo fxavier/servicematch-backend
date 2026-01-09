@@ -1,4 +1,4 @@
-package com.xavier.servicematch.common.domain.entity;
+package com.xavier.servicematchbackend.common.domain.entity;
 
 /**
  * Base class for aggregate roots in the domain.

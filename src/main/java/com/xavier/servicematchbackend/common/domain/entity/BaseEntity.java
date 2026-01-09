@@ -1,4 +1,4 @@
-package com.xavier.servicematch.common.domain.entity;
+package com.xavier.servicematchbackend.common.domain.entity;
 
 import java.util.Objects;
 
