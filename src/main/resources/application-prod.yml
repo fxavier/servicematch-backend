@@ -2,6 +2,12 @@ spring:
   config:
     activate:
       on-profile: prod
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/servicematch}
+    username: ${DB_USERNAME:servicematch}
+    password: ${DB_PASSWORD:servicematch}
+  flyway:
+    enabled: false
 
 management:
   endpoint:
