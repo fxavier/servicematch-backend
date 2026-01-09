@@ -1,6 +1,10 @@
 spring:
   application:
     name: servicematch-backend
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    locations: classpath:db/migration
 
 management:
   endpoints:
