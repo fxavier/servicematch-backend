@@ -18,3 +18,9 @@ management:
       probes:
         enabled: true
       show-details: never
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:dev-secret-change-me-please-32-chars}
+    issuer: servicematch-backend
+    ttl-seconds: 3600

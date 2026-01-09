@@ -5,7 +5,9 @@ import com.xavier.servicematchbackend.identityaccess.domain.Email;
 import com.xavier.servicematchbackend.identityaccess.domain.PasswordHash;
 import com.xavier.servicematchbackend.identityaccess.domain.Role;
 import com.xavier.servicematchbackend.identityaccess.domain.User;
+import com.xavier.servicematchbackend.identityaccess.domain.UserRegistered;
 import java.util.Set;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,9 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserRegistrationService {
 
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public UserRegistrationService(UserRepository userRepository) {
+    public UserRegistrationService(UserRepository userRepository,
+                                   ApplicationEventPublisher eventPublisher) {
         this.userRepository = userRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -24,6 +29,8 @@ public class UserRegistrationService {
         if (userRepository.existsByEmail(user.email())) {
             throw new DuplicateEmailException(user.email());
         }
-        return userRepository.save(user);
+        User saved = userRepository.save(user);
+        eventPublisher.publishEvent(new UserRegistered(saved.id(), saved.email()));
+        return saved;
     }
 }
