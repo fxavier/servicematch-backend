@@ -1,4 +1,4 @@
-package com.xavier.servicematch.common.domain.identifier;
+package com.xavier.servicematchbackend.common.domain.identifier;
 
 import lombok.Getter;
 
