@@ -4,12 +4,16 @@ import com.xavier.servicematchbackend.profiles.application.dto.CustomerProfilePa
 import com.xavier.servicematchbackend.profiles.application.dto.ProfilesPatchRequest;
 import com.xavier.servicematchbackend.profiles.application.dto.ProfilesResponse;
 import com.xavier.servicematchbackend.profiles.application.dto.ProviderProfilePatch;
+import com.xavier.servicematchbackend.profiles.application.dto.ProviderZoneRequest;
+import com.xavier.servicematchbackend.profiles.application.dto.ProviderZoneResponse;
 import com.xavier.servicematchbackend.profiles.domain.entity.CustomerProfile;
 import com.xavier.servicematchbackend.profiles.domain.entity.ProviderProfile;
+import com.xavier.servicematchbackend.profiles.domain.valueobject.ProviderZone;
 import com.xavier.servicematchbackend.profiles.domain.valueobject.UserId;
 import com.xavier.servicematchbackend.profiles.infra.persistence.CustomerProfileRepository;
 import com.xavier.servicematchbackend.profiles.infra.persistence.ProviderProfileRepository;
 import java.time.Instant;
+import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,5 +60,61 @@ public class ProfilesService {
         }
 
         return getProfiles(userId);
+    }
+
+    @Transactional
+    public ProviderZoneResponse addProviderZone(UserId userId, ProviderZoneRequest request) {
+        ProviderZoneRequest zoneRequest = requireRequest(request);
+        Instant now = Instant.now();
+        ProviderProfile providerProfile = providerProfileRepository.findById(userId)
+                .orElseGet(() -> ProviderProfile.create(userId, now));
+        ProviderZone zone = providerProfile.addZone(
+                zoneRequest.centerLat(),
+                zoneRequest.centerLng(),
+                zoneRequest.radiusKm(),
+                now
+        );
+        providerProfileRepository.save(providerProfile);
+        return toResponse(zone);
+    }
+
+    @Transactional
+    public ProviderZoneResponse updateProviderZone(UserId userId, UUID zoneId, ProviderZoneRequest request) {
+        ProviderZoneRequest zoneRequest = requireRequest(request);
+        ProviderProfile providerProfile = providerProfileRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("provider profile not found"));
+        ProviderZone zone = providerProfile.updateZone(
+                zoneId,
+                zoneRequest.centerLat(),
+                zoneRequest.centerLng(),
+                zoneRequest.radiusKm(),
+                Instant.now()
+        );
+        providerProfileRepository.save(providerProfile);
+        return toResponse(zone);
+    }
+
+    @Transactional
+    public void removeProviderZone(UserId userId, UUID zoneId) {
+        ProviderProfile providerProfile = providerProfileRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("provider profile not found"));
+        providerProfile.removeZone(zoneId, Instant.now());
+        providerProfileRepository.save(providerProfile);
+    }
+
+    private ProviderZoneRequest requireRequest(ProviderZoneRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("request must not be null");
+        }
+        return request;
+    }
+
+    private ProviderZoneResponse toResponse(ProviderZone zone) {
+        return new ProviderZoneResponse(
+                zone.id().toString(),
+                zone.centerLat(),
+                zone.centerLng(),
+                zone.radiusKm()
+        );
     }
 }

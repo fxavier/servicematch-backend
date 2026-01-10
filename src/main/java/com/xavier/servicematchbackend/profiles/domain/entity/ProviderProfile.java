@@ -1,12 +1,21 @@
 package com.xavier.servicematchbackend.profiles.domain.entity;
 
 import com.xavier.servicematchbackend.profiles.domain.valueobject.UserId;
+import com.xavier.servicematchbackend.profiles.domain.valueobject.ProviderZone;
 import jakarta.persistence.Column;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "provider_profiles")
@@ -26,6 +35,10 @@ public class ProviderProfile {
 
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "provider_zones", joinColumns = @JoinColumn(name = "user_id"))
+    private Set<ProviderZone> zones = new HashSet<>();
 
     protected ProviderProfile() {
     }
@@ -60,6 +73,10 @@ public class ProviderProfile {
         return updatedAt;
     }
 
+    public Set<ProviderZone> zones() {
+        return Collections.unmodifiableSet(zones);
+    }
+
     public void update(String displayName, String bio, Instant now) {
         if (displayName != null) {
             this.displayName = displayName;
@@ -68,6 +85,38 @@ public class ProviderProfile {
             this.bio = bio;
         }
         this.updatedAt = requireNonNull(now, "updatedAt must not be null");
+    }
+
+    public ProviderZone addZone(double centerLat, double centerLng, double radiusKm, Instant now) {
+        ProviderZone zone = ProviderZone.create(centerLat, centerLng, radiusKm);
+        zones.add(zone);
+        this.updatedAt = requireNonNull(now, "updatedAt must not be null");
+        return zone;
+    }
+
+    public ProviderZone updateZone(UUID zoneId, double centerLat, double centerLng, double radiusKm, Instant now) {
+        ProviderZone existing = findZone(zoneId);
+        zones.remove(existing);
+        ProviderZone updated = ProviderZone.of(zoneId, centerLat, centerLng, radiusKm);
+        zones.add(updated);
+        this.updatedAt = requireNonNull(now, "updatedAt must not be null");
+        return updated;
+    }
+
+    public void removeZone(UUID zoneId, Instant now) {
+        ProviderZone existing = findZone(zoneId);
+        zones.remove(existing);
+        this.updatedAt = requireNonNull(now, "updatedAt must not be null");
+    }
+
+    private ProviderZone findZone(UUID zoneId) {
+        if (zoneId == null) {
+            throw new IllegalArgumentException("zoneId must not be null");
+        }
+        return zones.stream()
+                .filter(zone -> zone.id().equals(zoneId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("zone not found"));
     }
 
     private static <T> T requireNonNull(T value, String message) {
