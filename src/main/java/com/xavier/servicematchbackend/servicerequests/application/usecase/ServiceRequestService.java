@@ -70,6 +70,30 @@ public class ServiceRequestService {
         }
     }
 
+    @Transactional
+    public void bookRequest(UUID requestId, UUID requesterId) {
+        if (requesterId == null) {
+            throw new IllegalArgumentException("requesterId must not be null");
+        }
+        ServiceRequest serviceRequest = serviceRequestRepository.findByIdForUpdate(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("request not found"));
+        if (!requesterId.equals(serviceRequest.requesterId())) {
+            throw new IllegalArgumentException("requester does not own request");
+        }
+        ServiceRequestStatus status = serviceRequest.status();
+        if (status == ServiceRequestStatus.CANCELLED) {
+            throw new IllegalArgumentException("request is cancelled");
+        }
+        if (status == ServiceRequestStatus.BOOKED) {
+            throw new IllegalArgumentException("request already booked");
+        }
+        if (status != ServiceRequestStatus.PUBLISHED) {
+            throw new IllegalArgumentException("request must be published");
+        }
+        serviceRequest.updateStatus(ServiceRequestStatus.BOOKED, Instant.now());
+        serviceRequestRepository.save(serviceRequest);
+    }
+
     private ServiceRequestCreateRequest requireRequest(ServiceRequestCreateRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("request must not be null");

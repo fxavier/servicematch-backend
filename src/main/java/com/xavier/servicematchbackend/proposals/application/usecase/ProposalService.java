@@ -3,7 +3,9 @@ package com.xavier.servicematchbackend.proposals.application.usecase;
 import com.xavier.servicematchbackend.proposals.application.dto.ProposalCreateRequest;
 import com.xavier.servicematchbackend.proposals.application.dto.ProposalResponse;
 import com.xavier.servicematchbackend.proposals.domain.entity.Proposal;
+import com.xavier.servicematchbackend.proposals.domain.event.ProposalAccepted;
 import com.xavier.servicematchbackend.proposals.domain.event.ProposalSubmitted;
+import com.xavier.servicematchbackend.proposals.domain.valueobject.ProposalStatus;
 import com.xavier.servicematchbackend.proposals.infra.persistence.ProposalRepository;
 import com.xavier.servicematchbackend.servicerequests.application.usecase.ServiceRequestService;
 import java.time.Instant;
@@ -50,6 +52,43 @@ public class ProposalService {
         return ProposalResponse.from(proposal);
     }
 
+    @Transactional
+    public ProposalResponse accept(UUID requesterId, UUID proposalId) {
+        UUID requesterUuid = requireRequester(requesterId);
+        UUID proposalUuid = requireProposal(proposalId);
+        Proposal proposal = proposalRepository.findById(proposalUuid)
+                .orElseThrow(() -> new IllegalArgumentException("proposal not found"));
+
+        if (proposal.status() == ProposalStatus.ACCEPTED) {
+            return ProposalResponse.from(proposal);
+        }
+        if (proposal.status() != ProposalStatus.SENT) {
+            throw new IllegalArgumentException("proposal cannot be accepted");
+        }
+
+        serviceRequestService.bookRequest(proposal.requestId(), requesterUuid);
+
+        Instant now = Instant.now();
+        proposal.updateStatus(ProposalStatus.ACCEPTED, now);
+        proposalRepository.save(proposal);
+        proposalRepository.rejectOtherProposals(
+                proposal.requestId(),
+                proposal.id(),
+                ProposalStatus.SENT,
+                ProposalStatus.REJECTED,
+                now
+        );
+
+        eventPublisher.publishEvent(new ProposalAccepted(
+                proposal.id(),
+                proposal.requestId(),
+                proposal.providerId(),
+                requesterUuid,
+                now
+        ));
+        return ProposalResponse.from(proposal);
+    }
+
     private ProposalCreateRequest requireRequest(ProposalCreateRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("request must not be null");
@@ -62,6 +101,20 @@ public class ProposalService {
             throw new IllegalArgumentException("providerId must not be null");
         }
         return providerId;
+    }
+
+    private UUID requireRequester(UUID requesterId) {
+        if (requesterId == null) {
+            throw new IllegalArgumentException("requesterId must not be null");
+        }
+        return requesterId;
+    }
+
+    private UUID requireProposal(UUID proposalId) {
+        if (proposalId == null) {
+            throw new IllegalArgumentException("proposalId must not be null");
+        }
+        return proposalId;
     }
 
     private UUID parseUuid(String value, String field) {
