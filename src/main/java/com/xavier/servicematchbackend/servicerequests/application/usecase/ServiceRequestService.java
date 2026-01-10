@@ -62,6 +62,14 @@ public class ServiceRequestService {
         return ServiceRequestResponse.from(serviceRequest);
     }
 
+    @Transactional(readOnly = true)
+    public void assertRequestAcceptsProposals(UUID requestId) {
+        ServiceRequest serviceRequest = findRequest(requestId);
+        if (serviceRequest.status() == ServiceRequestStatus.CANCELLED) {
+            throw new IllegalArgumentException("request is cancelled");
+        }
+    }
+
     private ServiceRequestCreateRequest requireRequest(ServiceRequestCreateRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("request must not be null");
@@ -80,6 +88,14 @@ public class ServiceRequestService {
         if (!categoryService.existsCategory(categoryId)) {
             throw new IllegalArgumentException("category not found");
         }
+    }
+
+    private ServiceRequest findRequest(UUID requestId) {
+        if (requestId == null) {
+            throw new IllegalArgumentException("requestId must not be null");
+        }
+        return serviceRequestRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("request not found"));
     }
 
     private String requireDescription(String value) {
