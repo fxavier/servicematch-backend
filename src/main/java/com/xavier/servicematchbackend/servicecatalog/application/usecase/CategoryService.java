@@ -31,6 +31,14 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
+    public boolean existsCategory(UUID id) {
+        if (id == null) {
+            throw new IllegalArgumentException("categoryId must not be null");
+        }
+        return categoryRepository.existsById(id);
+    }
+
+    @Transactional(readOnly = true)
     public CategoryResponse getCategory(UUID id) {
         return CategoryResponse.from(findCategory(id));
     }
