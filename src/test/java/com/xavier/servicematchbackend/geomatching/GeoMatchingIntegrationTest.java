@@ -2,6 +2,7 @@ package com.xavier.servicematchbackend.geomatching;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.xavier.servicematchbackend.geomatching.application.usecase.GeoMatchingService;
 import com.xavier.servicematchbackend.geomatching.domain.event.ProvidersMatched;
 import com.xavier.servicematchbackend.geomatching.infra.persistence.ProviderCategory;
 import com.xavier.servicematchbackend.geomatching.infra.persistence.ProviderCategoryId;
@@ -57,6 +58,9 @@ class GeoMatchingIntegrationTest {
     private ProviderProfileRepository providerProfileRepository;
 
     @Autowired
+    private GeoMatchingService geoMatchingService;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -108,5 +112,8 @@ class GeoMatchingIntegrationTest {
                 providerRequestMatchRepository.findByProviderIdOrderByMatchedAtDesc(providerId);
         assertThat(matches).isNotEmpty();
         assertThat(matches.get(0).categoryId()).isEqualTo(category.id());
+
+        var feed = geoMatchingService.feedForProvider(providerId, 0, 10, "recency");
+        assertThat(feed.items()).isNotEmpty();
     }
 }
