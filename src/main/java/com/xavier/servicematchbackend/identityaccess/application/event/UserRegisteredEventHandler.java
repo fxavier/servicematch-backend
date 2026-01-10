@@ -1,6 +1,7 @@
 package com.xavier.servicematchbackend.identityaccess.application.event;
 
 import com.xavier.servicematchbackend.identityaccess.domain.event.UserRegistered;
+import java.util.List;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -15,9 +16,13 @@ public class UserRegisteredEventHandler {
 
     @EventListener
     public void on(UserRegistered event) {
+        List<String> roles = event.roles().stream()
+                .map(role -> role.name())
+                .toList();
         UserRegisteredIntegrationEvent integrationEvent = new UserRegisteredIntegrationEvent(
                 event.userId().value().toString(),
-                event.email().value()
+                event.email().value(),
+                roles
         );
         integrationEventPublisher.publish(UserRegisteredIntegrationEvent.ROUTING_KEY, integrationEvent);
     }

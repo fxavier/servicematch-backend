@@ -31,7 +31,7 @@ public class UserRegistrationService {
             throw new DuplicateEmailException(user.email());
         }
         User saved = userRepository.save(user);
-        eventPublisher.publishEvent(new UserRegistered(saved.id(), saved.email()));
+        eventPublisher.publishEvent(new UserRegistered(saved.id(), saved.email(), saved.roles()));
         return saved;
     }
 }
