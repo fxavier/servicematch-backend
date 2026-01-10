@@ -91,6 +91,11 @@ public class Proposal {
         return updatedAt;
     }
 
+    public void updateStatus(ProposalStatus status, Instant now) {
+        this.status = requireNonNull(status, "status must not be null");
+        this.updatedAt = requireNonNull(now, "updatedAt must not be null");
+    }
+
     private static String normalizeMessage(String message) {
         if (message == null || message.isBlank()) {
             return null;

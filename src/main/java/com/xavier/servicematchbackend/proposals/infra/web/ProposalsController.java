@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +34,15 @@ public class ProposalsController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PostMapping("/{proposalId}/accept")
+    @PreAuthorize("hasRole('CLIENT')")
+    public ResponseEntity<ProposalResponse> accept(@AuthenticationPrincipal Jwt jwt,
+                                                   @PathVariable String proposalId) {
+        UUID requesterId = parseUserId(jwt);
+        ProposalResponse response = proposalService.accept(requesterId, parseUuid(proposalId));
+        return ResponseEntity.ok(response);
+    }
+
     private UUID parseUserId(Jwt jwt) {
         if (jwt == null || jwt.getSubject() == null) {
             throw new IllegalArgumentException("user id not found in token");
@@ -41,6 +51,14 @@ public class ProposalsController {
             return UUID.fromString(jwt.getSubject());
         } catch (IllegalArgumentException ex) {
             throw new IllegalArgumentException("user id must be a valid UUID");
+        }
+    }
+
+    private UUID parseUuid(String value) {
+        try {
+            return UUID.fromString(value);
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("proposalId must be a valid UUID");
         }
     }
 }
