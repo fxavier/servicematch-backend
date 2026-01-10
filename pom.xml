@@ -29,6 +29,11 @@
     <properties>
         <java.version>21</java.version>
         <spring-modulith.version>1.2.0</spring-modulith.version>
+        <springdoc.version>2.5.0</springdoc.version>
+        <flyway.plugin.version>10.10.0</flyway.plugin.version>
+        <flyway.url>jdbc:postgresql://localhost:5432/servicematch</flyway.url>
+        <flyway.user>servicematch</flyway.user>
+        <flyway.password>servicematch</flyway.password>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -79,6 +84,11 @@
             <artifactId>flyway-database-postgresql</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
@@ -117,6 +127,22 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>env-db</id>
+            <activation>
+                <property>
+                    <name>env.DB_URL</name>
+                </property>
+            </activation>
+            <properties>
+                <flyway.url>${env.DB_URL}</flyway.url>
+                <flyway.user>${env.DB_USERNAME}</flyway.user>
+                <flyway.password>${env.DB_PASSWORD}</flyway.password>
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
         <plugins>
             <plugin>
@@ -141,6 +167,16 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>${flyway.plugin.version}</version>
+                <configuration>
+                    <url>${flyway.url}</url>
+                    <user>${flyway.user}</user>
+                    <password>${flyway.password}</password>
                 </configuration>
             </plugin>
         </plugins>
