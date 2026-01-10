@@ -1,13 +1,15 @@
 package com.xavier.servicematchbackend.servicerequests.application.usecase;
 
-import com.xavier.servicematchbackend.servicecatalog.infra.persistence.CategoryRepository;
+import com.xavier.servicematchbackend.servicecatalog.application.usecase.CategoryService;
 import com.xavier.servicematchbackend.servicerequests.application.dto.ServiceRequestCreateRequest;
 import com.xavier.servicematchbackend.servicerequests.application.dto.ServiceRequestResponse;
+import com.xavier.servicematchbackend.servicerequests.domain.event.RequestPublished;
 import com.xavier.servicematchbackend.servicerequests.domain.entity.ServiceRequest;
 import com.xavier.servicematchbackend.servicerequests.domain.valueobject.ServiceRequestStatus;
 import com.xavier.servicematchbackend.servicerequests.infra.persistence.ServiceRequestRepository;
 import java.time.Instant;
 import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,12 +17,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class ServiceRequestService {
 
     private final ServiceRequestRepository serviceRequestRepository;
-    private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public ServiceRequestService(ServiceRequestRepository serviceRequestRepository,
-                                 CategoryRepository categoryRepository) {
+                                 CategoryService categoryService,
+                                 ApplicationEventPublisher eventPublisher) {
         this.serviceRequestRepository = serviceRequestRepository;
-        this.categoryRepository = categoryRepository;
+        this.categoryService = categoryService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -43,6 +48,17 @@ public class ServiceRequestService {
                 Instant.now()
         );
         serviceRequestRepository.save(serviceRequest);
+        if (status == ServiceRequestStatus.PUBLISHED) {
+            eventPublisher.publishEvent(new RequestPublished(
+                    serviceRequest.id(),
+                    serviceRequest.requesterId(),
+                    serviceRequest.categoryId(),
+                    serviceRequest.description(),
+                    serviceRequest.locationLat(),
+                    serviceRequest.locationLng(),
+                    Instant.now()
+            ));
+        }
         return ServiceRequestResponse.from(serviceRequest);
     }
 
@@ -61,7 +77,7 @@ public class ServiceRequestService {
     }
 
     private void validateCategory(UUID categoryId) {
-        if (!categoryRepository.existsById(categoryId)) {
+        if (!categoryService.existsCategory(categoryId)) {
             throw new IllegalArgumentException("category not found");
         }
     }
