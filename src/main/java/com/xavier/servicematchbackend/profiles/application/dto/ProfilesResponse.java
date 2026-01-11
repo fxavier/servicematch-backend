@@ -13,7 +13,11 @@ public record ProfilesResponse(CustomerProfileResponse customer,
             customer = new CustomerProfileResponse(customerProfile.displayName(), customerProfile.phone());
         }
         if (providerProfile != null) {
-            provider = new ProviderProfileResponse(providerProfile.displayName(), providerProfile.bio());
+            provider = new ProviderProfileResponse(
+                    providerProfile.displayName(),
+                    providerProfile.bio(),
+                    providerProfile.reputation()
+            );
         }
         return new ProfilesResponse(customer, provider);
     }

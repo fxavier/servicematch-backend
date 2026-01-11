@@ -102,6 +102,18 @@ public class ProfilesService {
         providerProfileRepository.save(providerProfile);
     }
 
+    @Transactional
+    public void updateProviderReputation(UUID userId, Double reputation, Instant now) {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId must not be null");
+        }
+        UserId profileId = UserId.of(userId);
+        ProviderProfile providerProfile = providerProfileRepository.findById(profileId)
+                .orElseGet(() -> ProviderProfile.create(profileId, now));
+        providerProfile.updateReputation(reputation, now);
+        providerProfileRepository.save(providerProfile);
+    }
+
     private ProviderZoneRequest requireRequest(ProviderZoneRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("request must not be null");
