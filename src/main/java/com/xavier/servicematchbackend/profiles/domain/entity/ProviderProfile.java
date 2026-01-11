@@ -30,6 +30,9 @@ public class ProviderProfile {
     @Column(name = "bio", length = 500)
     private String bio;
 
+    @Column(name = "reputation")
+    private Double reputation;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
@@ -65,6 +68,10 @@ public class ProviderProfile {
         return bio;
     }
 
+    public Double reputation() {
+        return reputation;
+    }
+
     public Instant createdAt() {
         return createdAt;
     }
@@ -84,6 +91,11 @@ public class ProviderProfile {
         if (bio != null) {
             this.bio = bio;
         }
+        this.updatedAt = requireNonNull(now, "updatedAt must not be null");
+    }
+
+    public void updateReputation(Double reputation, Instant now) {
+        this.reputation = normalizeReputation(reputation);
         this.updatedAt = requireNonNull(now, "updatedAt must not be null");
     }
 
@@ -117,6 +129,16 @@ public class ProviderProfile {
                 .filter(zone -> zone.id().equals(zoneId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("zone not found"));
+    }
+
+    private static Double normalizeReputation(Double reputation) {
+        if (reputation == null) {
+            return null;
+        }
+        if (reputation < 1.0 || reputation > 5.0) {
+            throw new IllegalArgumentException("reputation must be between 1 and 5");
+        }
+        return reputation;
     }
 
     private static <T> T requireNonNull(T value, String message) {

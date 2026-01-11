@@ -94,6 +94,26 @@ public class ServiceRequestService {
         serviceRequestRepository.save(serviceRequest);
     }
 
+    @Transactional(readOnly = true)
+    public void assertRequestCompleted(UUID requestId, UUID requesterId) {
+        if (requesterId == null) {
+            throw new IllegalArgumentException("requesterId must not be null");
+        }
+        ServiceRequest serviceRequest = findRequest(requestId);
+        if (!requesterId.equals(serviceRequest.requesterId())) {
+            throw new IllegalArgumentException("requester does not own request");
+        }
+        if (serviceRequest.status() != ServiceRequestStatus.COMPLETED) {
+            throw new IllegalArgumentException("request must be completed");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public UUID findRequesterId(UUID requestId) {
+        ServiceRequest serviceRequest = findRequest(requestId);
+        return serviceRequest.requesterId();
+    }
+
     private ServiceRequestCreateRequest requireRequest(ServiceRequestCreateRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("request must not be null");
