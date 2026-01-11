@@ -108,6 +108,12 @@ public class ServiceRequestService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public UUID findRequesterId(UUID requestId) {
+        ServiceRequest serviceRequest = findRequest(requestId);
+        return serviceRequest.requesterId();
+    }
+
     private ServiceRequestCreateRequest requireRequest(ServiceRequestCreateRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("request must not be null");

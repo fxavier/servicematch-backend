@@ -6,6 +6,11 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 import com.xavier.servicematchbackend.geomatching.application.usecase.GeoMatchingService;
+import com.xavier.servicematchbackend.identityaccess.domain.entity.User;
+import com.xavier.servicematchbackend.identityaccess.domain.valueobject.Email;
+import com.xavier.servicematchbackend.identityaccess.domain.valueobject.PasswordHash;
+import com.xavier.servicematchbackend.identityaccess.domain.valueobject.Role;
+import com.xavier.servicematchbackend.identityaccess.infra.persistence.UserRepository;
 import com.xavier.servicematchbackend.servicecatalog.domain.entity.Category;
 import com.xavier.servicematchbackend.servicecatalog.infra.persistence.CategoryRepository;
 import com.xavier.servicematchbackend.servicerequests.application.dto.ServiceRequestCreateRequest;
@@ -38,6 +43,9 @@ class ServiceRequestPublishIntegrationTest {
     @SpyBean
     private GeoMatchingService geoMatchingService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Test
     void publishRequestEmitsEventAndNotifiesGeoMatching() {
         Category category = Category.create("Limpeza", null, "/limpeza", Instant.now());
@@ -51,11 +59,23 @@ class ServiceRequestPublishIntegrationTest {
                 "PUBLISHED"
         );
 
-        serviceRequestService.create(UUID.randomUUID(), request);
+        UUID requesterId = seedRequester();
+        serviceRequestService.create(requesterId, request);
 
         long publishedEvents = applicationEvents.stream(RequestPublished.class).count();
         assertThat(publishedEvents).isEqualTo(1);
 
         verify(geoMatchingService, timeout(1000)).handleRequestPublished(any(RequestPublished.class));
+    }
+
+    private UUID seedRequester() {
+        String email = "requester-service-request+" + UUID.randomUUID() + "@email.com";
+        User requesterUser = User.register(
+                Email.of(email),
+                PasswordHash.of("hash"),
+                java.util.Set.of(Role.CLIENT)
+        );
+        userRepository.save(requesterUser);
+        return requesterUser.id().value();
     }
 }
