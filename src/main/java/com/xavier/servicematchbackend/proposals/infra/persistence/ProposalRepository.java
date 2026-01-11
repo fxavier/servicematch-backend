@@ -2,6 +2,7 @@ package com.xavier.servicematchbackend.proposals.infra.persistence;
 
 import com.xavier.servicematchbackend.proposals.domain.entity.Proposal;
 import com.xavier.servicematchbackend.proposals.domain.valueobject.ProposalStatus;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -11,6 +12,8 @@ import org.springframework.data.repository.query.Param;
 public interface ProposalRepository extends JpaRepository<Proposal, UUID> {
 
     boolean existsByRequestIdAndProviderId(UUID requestId, UUID providerId);
+
+    Optional<Proposal> findByRequestIdAndStatus(UUID requestId, ProposalStatus status);
 
     @Modifying
     @Query("""

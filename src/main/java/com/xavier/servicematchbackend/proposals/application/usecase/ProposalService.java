@@ -89,6 +89,19 @@ public class ProposalService {
         return ProposalResponse.from(proposal);
     }
 
+    @Transactional(readOnly = true)
+    public Proposal requireAcceptedProposal(UUID requestId) {
+        UUID requestUuid = requireRequestId(requestId);
+        return proposalRepository.findByRequestIdAndStatus(requestUuid, ProposalStatus.ACCEPTED)
+                .orElseThrow(() -> new IllegalArgumentException("accepted proposal not found"));
+    }
+
+    @Transactional(readOnly = true)
+    public UUID findAcceptedProviderId(UUID requestId) {
+        Proposal proposal = requireAcceptedProposal(requestId);
+        return proposal.providerId();
+    }
+
     private ProposalCreateRequest requireRequest(ProposalCreateRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("request must not be null");
@@ -115,6 +128,13 @@ public class ProposalService {
             throw new IllegalArgumentException("proposalId must not be null");
         }
         return proposalId;
+    }
+
+    private UUID requireRequestId(UUID requestId) {
+        if (requestId == null) {
+            throw new IllegalArgumentException("requestId must not be null");
+        }
+        return requestId;
     }
 
     private UUID parseUuid(String value, String field) {
