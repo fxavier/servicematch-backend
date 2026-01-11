@@ -8,6 +8,7 @@ import com.xavier.servicematchbackend.servicerequests.domain.entity.ServiceReque
 import com.xavier.servicematchbackend.servicerequests.domain.valueobject.ServiceRequestStatus;
 import com.xavier.servicematchbackend.servicerequests.infra.persistence.ServiceRequestRepository;
 import java.time.Instant;
+import java.util.Locale;
 import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -175,7 +176,7 @@ public class ServiceRequestService {
         }
         ServiceRequestStatus status;
         try {
-            status = ServiceRequestStatus.valueOf(value.trim().toUpperCase());
+            status = ServiceRequestStatus.valueOf(value.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException ex) {
             throw new IllegalArgumentException("status must be a valid ServiceRequestStatus");
         }
