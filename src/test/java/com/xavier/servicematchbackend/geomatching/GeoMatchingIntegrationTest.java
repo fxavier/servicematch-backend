@@ -102,7 +102,8 @@ class GeoMatchingIntegrationTest {
                 "PUBLISHED"
         );
 
-        serviceRequestService.create(UUID.randomUUID(), request);
+        UUID requesterId = seedRequester();
+        serviceRequestService.create(requesterId, request);
 
         List<ProvidersMatched> events = applicationEvents.stream(ProvidersMatched.class).toList();
         assertThat(events).hasSize(1);
@@ -115,5 +116,16 @@ class GeoMatchingIntegrationTest {
 
         var feed = geoMatchingService.feedForProvider(providerId, 0, 10, "recency");
         assertThat(feed.items()).isNotEmpty();
+    }
+
+    private UUID seedRequester() {
+        String email = "requester-geomatching+" + UUID.randomUUID() + "@email.com";
+        User requesterUser = User.register(
+                Email.of(email),
+                PasswordHash.of("hash"),
+                java.util.Set.of(Role.CLIENT)
+        );
+        userRepository.save(requesterUser);
+        return requesterUser.id().value();
     }
 }
