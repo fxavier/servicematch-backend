@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.xavier.servicematchbackend.profiles.domain.valueobject.UserId;
 import com.xavier.servicematchbackend.profiles.infra.persistence.CustomerProfileRepository;
 import com.xavier.servicematchbackend.profiles.infra.persistence.ProviderProfileRepository;
+import com.xavier.servicematchbackend.support.PostgresTestContainer;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
-class ProfilesBootstrapIntegrationTest {
+class ProfilesBootstrapIntegrationTest extends PostgresTestContainer {
 
     @Autowired
     private UserRegisteredListener listener;

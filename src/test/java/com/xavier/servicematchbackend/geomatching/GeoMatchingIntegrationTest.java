@@ -24,6 +24,7 @@ import com.xavier.servicematchbackend.servicecatalog.domain.entity.Category;
 import com.xavier.servicematchbackend.servicecatalog.infra.persistence.CategoryRepository;
 import com.xavier.servicematchbackend.servicerequests.application.dto.ServiceRequestCreateRequest;
 import com.xavier.servicematchbackend.servicerequests.application.usecase.ServiceRequestService;
+import com.xavier.servicematchbackend.support.PostgresTestContainer;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -37,7 +38,7 @@ import org.springframework.test.context.event.RecordApplicationEvents;
 @SpringBootTest
 @ActiveProfiles("test")
 @RecordApplicationEvents
-class GeoMatchingIntegrationTest {
+class GeoMatchingIntegrationTest extends PostgresTestContainer {
 
     @Autowired
     private ServiceRequestService serviceRequestService;

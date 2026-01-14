@@ -16,6 +16,7 @@ import com.xavier.servicematchbackend.servicecatalog.infra.persistence.CategoryR
 import com.xavier.servicematchbackend.servicerequests.application.dto.ServiceRequestCreateRequest;
 import com.xavier.servicematchbackend.servicerequests.application.usecase.ServiceRequestService;
 import com.xavier.servicematchbackend.servicerequests.domain.event.RequestPublished;
+import com.xavier.servicematchbackend.support.PostgresTestContainer;
 import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,7 @@ import org.springframework.test.context.event.RecordApplicationEvents;
 @SpringBootTest
 @ActiveProfiles("test")
 @RecordApplicationEvents
-class ServiceRequestPublishIntegrationTest {
+class ServiceRequestPublishIntegrationTest extends PostgresTestContainer {
 
     @Autowired
     private ServiceRequestService serviceRequestService;

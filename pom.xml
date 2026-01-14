@@ -30,6 +30,7 @@
         <java.version>21</java.version>
         <spring-modulith.version>1.2.0</spring-modulith.version>
         <springdoc.version>2.5.0</springdoc.version>
+        <testcontainers.version>1.19.7</testcontainers.version>
         <flywayMavenPluginVersion>10.10.0</flywayMavenPluginVersion>
         <flyway.url>jdbc:postgresql://localhost:5432/servicematch</flyway.url>
         <flyway.user>servicematch</flyway.user>
@@ -41,6 +42,13 @@
                 <groupId>org.springframework.modulith</groupId>
                 <artifactId>spring-modulith-bom</artifactId>
                 <version>${spring-modulith.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -118,6 +126,16 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

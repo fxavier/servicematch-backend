@@ -21,6 +21,7 @@ import com.xavier.servicematchbackend.servicerequests.application.usecase.Servic
 import com.xavier.servicematchbackend.servicerequests.domain.entity.ServiceRequest;
 import com.xavier.servicematchbackend.servicerequests.domain.valueobject.ServiceRequestStatus;
 import com.xavier.servicematchbackend.servicerequests.infra.persistence.ServiceRequestRepository;
+import com.xavier.servicematchbackend.support.PostgresTestContainer;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -40,7 +41,7 @@ import org.springframework.test.context.event.RecordApplicationEvents;
 @SpringBootTest
 @ActiveProfiles("test")
 @RecordApplicationEvents
-class ProposalAcceptIntegrationTest {
+class ProposalAcceptIntegrationTest extends PostgresTestContainer {
 
     @Autowired
     private ProposalService proposalService;
